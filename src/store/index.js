@@ -3,50 +3,83 @@ import Vuex from 'vuex';
 import axiosInstance from '@/appi/index.js'; // исправить ошибку в слове api
 import {
   CHARACTERS_BY_PAGE,
-  CHARACTERS,
+  // CHARACTERS,
   CHARACTERS_BY_NAME,
   CHARACTERS_BY_STATUS,
   CHARACTERS_BY_NAME_STATUS,
+  CHARACTERS_BY_ID,
+  EPISODES,
 } from '@/appi/routes.js'; // в фигурных скобках можем указывать несколько констант для импорта
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
     data: {},
-    searchNameValue: '',
+    episodes: {},
   },
   mutations: {
     setData(state, data) {
       state.data = data;
     },
-    setSearchValue(state, searchValue) {
-      state.searchNameValue = searchValue;
+
+    setEpisodes(state, data) {
+      state.episodes = data;
     },
   },
   actions: {
-    async fetchData({ dispatch, commit }) {
-      const { data } = await axiosInstance.get(CHARACTERS());
+    async fetchData({ commit }, query) {
+      if (!query) {
+        throw new Error('query is required');
+      }
+      // `characters/?name=${name}&status=${status}`
+      const queryArray = [];
+
+      if (query.searchNameValue && query.searchNameValue !== '') {
+        queryArray.push(`name=${query.searchNameValue}`);
+      }
+      if (query.select && query.select !== '') {
+        queryArray.push(`status=${query.select}`);
+      }
+      const ass = queryArray.join('&');
+      const queryString = `character${queryArray.length ? '?' : ''}${ass}`;
+
+      const { data } = await axiosInstance.get(queryString);
       commit('setData', data);
     },
-    async searchName({ dispatch, commit }, name) {
+    async searchName({ dispatch, commit }, name, currentPage) {
       const { data } = await axiosInstance.get(CHARACTERS_BY_NAME(name));
       commit('setData', data);
     },
-    async fetchDatabyStatus({ dispatch, commit }, status) {
+    async fetchDatabyStatus({ commit }, status) {
       const { data } = await axiosInstance.get(CHARACTERS_BY_STATUS(status));
 
       commit('setData', data);
     },
-    async searchSelect({ dispatch, commit }, { name, status }) {
+    async searchSelect({ commit }, { name, status }) {
       const { data } = await axiosInstance.get(
         CHARACTERS_BY_NAME_STATUS(name, status)
       );
 
       commit('setData', data);
     },
+    async fetchDataByPage({ commit }, currentPage) {
+      const { data } = await axiosInstance.get(CHARACTERS_BY_PAGE(currentPage));
+
+      commit('setData', data);
+    },
+    // async fetchDataById({ commit }, id) {
+    //   const { data } = await axiosInstance.get(CHARACTERS_BY_ID(id));
+
+    //   commit('setData', data);
+    // },
+    async fetchEpisodes({ commit }) {
+      const { data } = await axiosInstance.get(EPISODES());
+      commit('setEpisodes', data);
+    },
   },
+
   getters: {
     DATA: (state) => state.data,
-    SEARCH_NAME_VALUE: (state) => state.searchNameValue,
+    EPISODES: (state) => state.episodes,
   },
 });
