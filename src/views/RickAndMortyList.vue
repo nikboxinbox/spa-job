@@ -2,9 +2,14 @@
   <div>
     >
     <!-- ЭПИЗОДЫ сделать  -->
-    <!-- СДелать Коммит -->
+
     <!-- <метод get прочитать> -->
     <!-- Доделать Пагинацию -->
+    <!-- Получить данные характeрс
+    Взять айди первых пяти эпизодов каждго характера, сохранить Характер-Эпизод
+     Создать массив айди эпизодов всех характеров и убрать дубликаты
+     Получить данные о эпизодах
+     Сопоставить вывести для каждого характера-->
 
     Rick and Morty
 
@@ -40,11 +45,13 @@
               character.name
             }}</router-link>
           </td>
-          <td>{{ character.species }}</td>
+          <td>
+            {{ character.species }}
+          </td>
           <td><img :src="character.image" alt="" /></td>
           <td>
             <ul
-              v-for="episode of EPISODES.results.slice(0, 4)"
+              v-for="episode of EPISODES.results.slice(0, 5)"
               :key="episode.id"
             >
               <li>
@@ -57,13 +64,13 @@
         </tr>
       </tbody>
     </table>
-    <div v-if="!searchNameValue" class="pagination-block">
+    <div class="pagination-block">
       <paginate
         v-model="currentPage"
-        :page-count="34"
+        :page-count="DATA.info.pages"
         :page-range="3"
-        :margin-pages="2"
-        :click-handler="clickPagination"
+        :margin-pages="1"
+        :click-handler="fetchData"
         :prev-text="'Prev'"
         :next-text="'Next'"
         :container-class="'pagination'"
@@ -87,11 +94,16 @@ export default {
     options: ['alive', 'dead', 'unknown'],
     select: '',
     currentPage: 1,
+    episodesByCharacter: '',
   }),
   computed: {
     ...mapGetters(['DATA', 'EPISODES']),
     query() {
-      return { searchNameValue: this.searchNameValue, select: this.select };
+      return {
+        searchNameValue: this.searchNameValue,
+        select: this.select,
+        currentPage: this.currentPage,
+      };
     },
 
     // pages() {
@@ -132,7 +144,7 @@ export default {
       this.fetchData();
     },
     async fetchData() {
-      const ass = await this.$store.dispatch('fetchData', this.query);
+      await this.$store.dispatch('fetchData', this.query);
     },
     async clickPagination() {
       const currentPage = this.currentPage;

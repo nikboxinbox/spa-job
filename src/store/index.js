@@ -31,7 +31,7 @@ export default new Vuex.Store({
       if (!query) {
         throw new Error('query is required');
       }
-      // `characters/?name=${name}&status=${status}`
+      const page = query.currentPage;
       const queryArray = [];
 
       if (query.searchNameValue && query.searchNameValue !== '') {
@@ -40,7 +40,12 @@ export default new Vuex.Store({
       if (query.select && query.select !== '') {
         queryArray.push(`status=${query.select}`);
       }
+      if (query.currentPage) {
+        queryArray.push(`page=${query.currentPage}`);
+      }
+
       const ass = queryArray.join('&');
+
       const queryString = `character${queryArray.length ? '?' : ''}${ass}`;
 
       const { data } = await axiosInstance.get(queryString);

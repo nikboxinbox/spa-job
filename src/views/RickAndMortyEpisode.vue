@@ -28,7 +28,6 @@ export default {
     this.episodeId = parseInt(this.$route.params.id);
     const episodes = this.EPISODES.results;
     this.episode = episodes.find((c) => c.id === this.episodeId);
-    debugger;
   },
 };
 </script>
